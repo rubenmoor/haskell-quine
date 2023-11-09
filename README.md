@@ -175,7 +175,8 @@ And it can be run just like this:
 This variation works on my system, NixOS, even without having Python installed beforehand:
 
 ```python
-#! /usr/bin/env nix-shell                                                                                                 #! nix-shell -i python -p python312
+#! /usr/bin/env nix-shell
+#! nix-shell -i python -p python312
 with open(__file__, "r") as me:
     print(me.read(), end='')
 ```
