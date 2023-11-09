@@ -37,7 +37,7 @@ They have a whole [Wikipedia-article](https://en.wikipedia.org/wiki/Quine_(compu
 
 Do yourself a favour and don't open these links.
 Programming a quine isn't easy.
-In the ollowing paragraphs I will show you how I approached it.
+In the following paragraphs I will show you how I approached the challenge.
 Once you see the code you will think "Oh, of course!" and you will regret that you haven't tried it yourself.
 This was the last spoiler warning.
 
