@@ -53,7 +53,7 @@ with open(__file__, "r") as me:
 ```
 
 ```haskell
-# barely-a-quine.hs
+-- barely-a-quine.hs
 import System.Environment (getProgName)
 main = putStr =<< readFile =<< getProgName
 ```
