@@ -6,6 +6,7 @@ Be entertained.
 ## Making a spoon using only a spoon
 
 I saw this thumbnail on Youtube and immediately felt **thumbnail envy**.
+If I could come up with thumbnails like these, I would be a Youtube star.
 No matter the contents of the video, the idea is genius.
 
 ![image](https://github.com/rubenmoor/haskell-quine/assets/6209273/07349fa7-15c8-4bce-a3ea-a73e84354565)
