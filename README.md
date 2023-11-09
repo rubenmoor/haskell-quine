@@ -495,8 +495,8 @@ main = do
 
 Marvel at the backslashes and a defining property of the quine becomes painfully obvious.
 The function `mkStrRepr` turns a string into the way the same string looks like in the original source code.
-In the original source code, any backslash needs escaping, i.e. '\' is a reserved character and you need "\\"
-for "\" to appear.
+In the original source code, any backslash needs escaping, i.e. '\\' is a reserved character and you need "\\\\"
+for "\\" to appear.
 Given some string, we have to revert this and thus replace "\" with "\\".
 Now the fun part: in the source code this looks like
 
