@@ -58,12 +58,12 @@ import System.Environment (getProgName)
 main = putStr =<< readFile =<< getProgName
 ```
 
-Both example just read a file, the actual source file, and print the contents.
-The Wikipedia-article says that's cheating, because reading a file is an *input* and quines can't have any input.
+Both examples just read a file, the actual source file, and print the contents.
+The Wikipedia-article says, that's cheating, because reading a file is an *input* and quines can't have any input.
 I disagree with Wikipedia, because:
 
 * The challenge of writing a quine is fun. Any solution counts. The Wikipedia-article lists a couple of "cheating quines" and every single one of them made me giggle.
-* The point is not that my quine has *input* but rather that it is not a *constructive quine*: The challenge is to write source code that constructs itself. By reading from the filesystem, my code just relies on the existence of a copy of itself ... to produce another copy.
+* The point is not that my quine has *input* but rather that it is not a *constructive quine*: The challenge is to write source code that constructs itself. By reading from the file system, my code just relies on the existence of a copy of itself ... to produce another copy.
 
 So I tried again.
 This time: no cheating.
@@ -79,8 +79,6 @@ Either way, the existence of quines is old knowledge so what remains for the cur
 **Implement the shortest quine possible!**
 
 This is what Rosetta Code presents as the most compact quine written in Haskell:
-
-(From here on, all code will be Haskell)
 
 ```haskell
 ap(++)show"ap(++)show"
@@ -99,11 +97,11 @@ main = putStrLn $ (++) <*> show $ "main = putStrLn $ (++) <*> show $ "
 
 1. `main =`: the entry point and we have to skip its type declaration `main :: IO ()` for the quine to work.
 2. `putStrLn $`: write to stdout; eveything that follows
-    * must be of type `String`
+    * must in its entirety be of type `String`
     * will be the entire output of the program
-3. `(++) <*> show`: the short story is that this code is equivalent to `\s -> s ++ show s` and this is an anonymous function that takes a string argument `s` and evaluates to the same string, plus: it concatenates `show s` in the end. This should be thought of as a trick. Applying `show` to a `String` is a way of wrapping a `String` in quotation marks.
+3. `(++) <*> show`: the short story is that this code is equivalent to `\s -> s ++ show s` and thus is an anonymous function that takes a string argument `s` and evaluates to the same string, plus: it concatenates `show s` in the end. This should be thought of as a trick. Applying `show` to a `String` is a way of wrapping a `String` in quotation marks.
 4. `$`: the function from the previous steps gets applied; note how the argument `s` of type `String` will be duplicated, it will appear first in its original form and then a second time wrapped in quotation marks.
-5. "main = putStrLn $ (++) <*> show $ ": this is literally just a string, it is the source code **as string** and thus begins with "main = ". It ends right where it would start to repeat itself.
+5. "main = putStrLn $ (++) <*> show $ ": this is literally just a string, it is the source code **as string** and thus begins with "main = ". It ends right where it would begin to repeat itself.
 
 ### A remark on Step 3
 
@@ -113,7 +111,7 @@ While not terribly important for today's topic, I don't want to gloss over stuff
 I mostly use `<*>` in the pattern `func <$> x <*> y` which gives rise to an easy intuition:
 
 `func <$> x` is equivalent to `fmap func x` and typically means:
-I have some function `func :: a -> b` and a value `x :: f a` and a result of type `f b`, where `f` is some Functor.
+I have some function `func :: a -> b` and a value `x :: f a` and a result of type `f b`, where `f` is a Functor.
 Instead of just applying `func` (`func x` or `func $ x` both don't compile), I am *fmapping* `func` into the Functor.
 E.g. `sin <$> Just pi` evaluates to `Just 0`.
 
@@ -126,9 +124,9 @@ Unfortunately, this is not the pattern used here.
 There is no `<$>`/no `fmap`.
 But still, to the left of `<*>` we expect something of type `f (b -> c)`, where `f` is an *Applicative Functor*.
 `(++)` is a function that takes two arguments, e.g. its type is `a -> b -> c`.
-This helps identifying `f`: It is `a ->` or `(->) a`, thus `f (b -> c)` becomes equivalent to `a -> b -> c`.
+This helps identifying `f`: It is `a ->` or `(->) a`, such that `f (b -> c)` turns out equivalent to `a -> b -> c`.
 The `Applicative` instance for `(->) a` says: `func2 <*> func1 = \x -> func2 x (func1 x)`.
-My funny choice for the arguments, `func2` and `func1` shall remind you that the first argument, `func2`, is a function that takes two arguments (`(++)`) and the second argument, `func1` is a function that take one argument (`show`).
+My funny choice for the argument names, `func2` and `func1`, shall remind you that the first argument, `func2`, is a function that takes two arguments (`(++)`) and the second argument, `func1`, is a function that take one argument (`show`).
 
 *In conclusion, someone probably wrote the code for Step 3 as `\s -> s ++ show s` and recognized the pattern that allows for the more compact, yet equivalent, `(++) <*> show`.*
 
@@ -136,7 +134,7 @@ You find the full introduction on the topic of applicative functors in [this cha
 
 ## Why "most compact" isn't actually that great
 
-When you tried to come up with a quine yourself, you will have noticed how you are circeling around a knot.
+When you tried to come up with a quine yourself, you will have noticed how you are circling around a knot.
 Every piece of code you add has to show up in the output of the program, which cries for more code to add.
 By just trying around, it is not at all obvious that there is always a solution (luckily the Mathematicians from about 100 years ago have proof).
 There certainly is a more systematic way to approach the problem!
@@ -147,7 +145,7 @@ rather there are best practices to follow (including top-level type signatures).
 
 Let's move away from the oneliners and write a quine that is also human-readable, and - heaven forbid - extensible.
 Yes, normally, good code can be edited without causing headaches.
-Quines are no different.
+Quines shouldn't be different.
 
 ## Turning oneliners into complete programs
 
@@ -174,7 +172,7 @@ And it can be run just like this:
 ./barely-a-quine.py
 ```
 
-This variation works on NixOS even without having a Python installed on your system beforehand:
+This variation works on my system, NixOS, even without having Python installed beforehand:
 
 ```python
 #! /usr/bin/env nix-shell                                                                                                 #! nix-shell -i python -p python312
@@ -220,13 +218,13 @@ But let's go through the code, step by step:
 1. `#!/usr/bin/stack`: the shebang that allows proper execution
 2. `{- stack script ...`: the magic of stack's script interpreter; even packages can be added
 3. `{-# LANGUAGE QuasiQuotes #-}`: A haskell language extension that enables multi-line strings without a lot of noise; this is extremely helpful as we will see later.
-4. `main =`: Woops! Still missing the type signature for `main`. But now things are different, we can just add `main :: IO ()` without headache; just be sure to add it right above and a second time down below.
-5. (same line) `let f s = tail [r|`:
-     * define the function `f` that takes `s :: String` as argument
-     * open a multiline string with `[r|`; it is closed in the very last line by `|]`
+4. `main =`: Woops! Still missing the type signature for `main`. But now things are different, we can just add `main :: IO ()` without headache; just be sure to add it twice: right above and a second time down below.
+5. (still same line) `let f s = tail [r|`:
+     * define the function `f` that takes `s` as argument; `f :: String -> String`
+     * open a multiline string with `[r|`; it is closed at the beginning of the very last line by `|]`
      * `tail` removes the first character of the multiline string, which is a line break
 6. `#!/usr/bin/stack`: we've seen that before: repeat the whole program, but now as a string; the process continues until the last line
-7. `|] ++ s`: close the multi-line string; up to here we only have defined the function `f :: String -> String`
+7. `|] ++ s`: close the multi-line string and concatenate `s`; up to here we only have defined the function `f :: String -> String`
 8. `in putStrLn $`: finally print something to the screen; what follows now must be the whole code as `String`
 9. `f $ f $`: consider this a trick: applying `f` twice is just concatenation. We can do this because of the fact that our multi-line string **does not rely on quotes or escaping**; the first 8 lines of code are literally repeated in the program
 10. `let g s = s ++ show s`: copying from the one-liner on Rosetta code: given that there is just one line left to complete the quine, we can apply the very same trick as explained above.
@@ -246,10 +244,10 @@ First a remark on verifying quines.
 
 ### Testing quines
 
-Using the one-file approach with the bash shebang, allows to write a very compact quine verifier in bash.
+Using the one-file approach with the bash shebang, allows to write a very compact quine verifier in shell script.
 E.g. save the above code in a file "quine.hs" and run
 
-```bash
+```sh
 ./quine.hs > tmp.txt && diff tmp.txt quine.hs
 ```
 
@@ -416,11 +414,24 @@ We have the freedom to spread things out in multiple lines.
 Note that thanks to the way QuasiQuotes work, the opening bracket `[r|` of the `pre` string is part of the `pre` string.
 It's its last line.
 Also note, `tail [r|` allows to start the multi-line string with a newline and strip it immediately.
+Finally note that I wrote `"|" <> "]"` which is equivalent to `"|]"`.
+This way I avoid "|]" in the next step.
 We will see that we don't actually depend on these "tricks".
 
 **Step 4**: Assign the string representation of the new code at the end of the program to `post`.
 This is an iterative step. You successively add lines at the end of the program to output `post`,
 to print it just like `pre`.
+
+(You have to scroll up to see the result.)
+
+I can savely add 
+
+```haskell
+putStrLn $ pre <> "|" <> "]"
+putStrLn $ "            , tail [r|\n" <> post <> "|" <> "]"
+```
+to the string representation.
+If I had chosen `"|]"` that would be not the case.
 
 And the program is complete.
 
@@ -428,7 +439,7 @@ And the program is complete.
 
 The final version to present here works without the QuasiQuotes.
 This makes the program look even less like a bag of tricks, at the expense of some additional work.
-The basic steps are just the same, though:
+The basic structure is the same, though:
 
 ```haskell
 #!/usr/bin/env stack
@@ -481,7 +492,7 @@ main = do
     Text.putStrLn post
 ```
 
-Here, a defining property of the quine becomes painfully obvious.
+Marvel at the backslashes and a defining property of the quine becomes painfully obvious.
 The function `mkStrRepr` turns a string into the way the same string looks like in the original source code.
 In the original source code, any backslash needs escaping, i.e. '\' is a reserved character and you need "\\"
 for "\" to appear.
@@ -492,11 +503,11 @@ Now the fun part: in the source code this looks like
 Text.replace "\\" "\\\\" str -- replacing \ with \\
 ```
 
-This code becomes much longer for a couple of reasons:
+This code, without QuasiQuotes, becomes much longer for a couple of reasons:
 
 * QuasiQuotes makes the leading backslashes redundant, as well as the newline character and the trailing backslash
 * QuasiQuotes does not use quotation marks, thus no need to ever escape a quotation mark
-* Any added lines shows up twice: we always maintain the code **and** its string representation
+* Any added line shows up twice: we always maintain the code **and** its string representation
 
 Of course even without QuasiQuotes there are ways to work around that.
 E.g.
@@ -508,21 +519,23 @@ E.g.
 
 In biological evolution, replication started in the primordial soup.
 It is hypothesized that small organic molecules (relatively speaking) grew cristalline structures
-or just clumped together in a regular way **because** of mineralic cristalline structures.
+or just clumped together in a regular way next to mineral cristalline structures.
 
 If the concentration of some primitive amino acid is high enough,
 those can give rise to bigger molecules and eventually a molecule that - given certain environmental conditions - produces copies of itself.
 Like with the spoon, the focus on this replicating molecule is arbitrary at first.
 It's the environment that does the heavy lifting, not the molecule that is being copied.
+In particular you need the energy of the sun next to the versatile building blocks (amino acids) for replication.
 
 However, when choosing the time horizons of thousands (or millions, even billions) of years, the replicating molecule does become a salient feature.
 And it's not a specific molecule that replicates itself physically (you can't duplicate atoms), but the structure it creates.
 
-I have questions:
+This raises a couple of questions:
 
 * What would need to be done to have quines evolve?
 * What is the primordial soup transferred to the world of computer programs?
-* Is it possible to create an environment that has quines evolving?
+* Is it possible to create an environment for evolving quines?
 * Do we need error correcting quines? Or would they evolve by themselves?
-* Is there a way to avoid the combinatorical explosion, yet have quines evolve naturally?
+* Would quine evolution favor Python (interpreted!) over GHC?
+* Is there a way to avoid the combinatorical explosion? How did natural selection not get stuck?
 * Can evolving quines create new knowledge? Can they outperform an intelligent programmer?
