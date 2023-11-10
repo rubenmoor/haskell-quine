@@ -194,47 +194,72 @@ And here I present my first quine that fulfills the criteria of a full Haskell p
 ```haskell
 #!/usr/bin/env stack
 {- stack script
-   --resolver lts-21.13
-   --package raw-strings-qq
+    --resolver lts-21.13
+    --package raw-strings-qq
 -}
-{-# LANGUAGE QuasiQuotes #-}
-import Text.RawString.QQ
-main = let f s = tail [r|
-#!/usr/bin/env stack
-{- stack script
-   --resolver lts-21.13
-   --package raw-strings-qq
--}
-{-# LANGUAGE QuasiQuotes #-}
-import Text.RawString.QQ
-main = let f s = tail [r|
-|] ++ s in putStrLn $ f $ f $ let g s = s ++ show s in g "|] ++ s in putStrLn $ f $ f $ let g s = s ++ show s in g "
-```
 
-Compare this code to the one-liner: does it have to be so long?
-Maybe someone can come up with something more elegant.
+{-# LANGUAGE QuasiQuotes #-}
+
+import Text.RawString.QQ (r)
+
+toStrRepr :: String -> String
+toStrRepr str = "    [r|" ++ str ++ '|' : ']' : ""
+
+main :: IO ()
+main = putStrLn $ s ++ toStrRepr s
+
+s :: String
+s =
+    [r|#!/usr/bin/env stack
+{- stack script
+    --resolver lts-21.13
+    --package raw-strings-qq
+-}
+
+{-# LANGUAGE QuasiQuotes #-}
+
+import Text.RawString.QQ (r)
+
+toStrRepr :: String -> String
+toStrRepr str = "    [r|" ++ str ++ '|' : ']' : ""
+
+main :: IO ()
+main = putStrLn $ s ++ toStrRepr s
+
+s :: String
+s =|]
 
 But let's go through the code, step by step:
 
 1. `#!/usr/bin/stack`: the shebang that allows proper execution
 2. `{- stack script ...`: the magic of stack's script interpreter; even packages can be added
 3. `{-# LANGUAGE QuasiQuotes #-}`: A haskell language extension that enables multi-line strings without a lot of noise; this is extremely helpful as we will see later.
-4. `main =`: Woops! Still missing the type signature for `main`. But now things are different, we can just add `main :: IO ()` without headache; just be sure to add it twice: right above and a second time down below.
-5. (still same line) `let f s = tail [r|`:
-     * define the function `f` that takes `s` as argument; `f :: String -> String`
-     * open a multiline string with `[r|`; it is closed at the beginning of the very last line by `|]`
-     * `tail` removes the first character of the multiline string, which is a line break
-6. `#!/usr/bin/stack`: we've seen that before: repeat the whole program, but now as a string; the process continues until the last line
-7. `|] ++ s`: close the multi-line string and concatenate `s`; up to here we only have defined the function `f :: String -> String`
-8. `in putStrLn $`: finally print something to the screen; what follows now must be the whole code as `String`
-9. `f $ f $`: consider this a trick: applying `f` twice is just concatenation. We can do this because of the fact that our multi-line string **does not rely on quotes or escaping**; the first 8 lines of code are literally repeated in the program
-10. `let g s = s ++ show s`: copying from the one-liner on Rosetta code: given that there is just one line left to complete the quine, we can apply the very same trick as explained above.
+4. `toStrRepr`: in the oneliner, `show` adds quotation marks to make a string representation; this function is the same, but QuasiQuotes rely on `[r|` and `|]` to wrap a string
+4. `main :: IO ()` the type signature of `main`, adding lines is not a problem anymore
+4. `main = putStrLn $ s ++ toStrRepr s`: This is a copy of the oneliner, only that we on `s` to be defined later
+5. `s :: String`: now defining `s`
+6. `s =`: `s` is just a string but it's value is given as a multi-line string wrapped in `[r|` and `|]`
+6. `[r|#!/usr/bin/stack`: we've seen that before: repeat the whole program, but now as a string; the process continues until the last line
+7. `s=|]`: last line of code and the closing of the multi-line string
 
 Douglas Hofstadter would appreciate the symmetry, I am sure:
-The lines 1-8 are repeated identically as lines 9-16 and the line 17 repeats its first 57 columns horizontally, apart from quotation marks.
+The lines 1-18 are repeated identically as lines 19-36, apart from the opening and closing QuasiQuotes.
+You can look at my quine as the vertical version of the oneliner.
+The oneliner is possible, because
 
-We are not done yet, however.
-I dislike the fact that, again, I relied on tricks.
+* the string representation of the program can be trivially produced using `show`:
+    * Just wrap the string in quotation marks and we are done.
+    * No character needs escaping/special treatment.
+* The string representation itself ends the program (e.g. no closing bracket).
+
+Similarly, my quine is possible, because
+
+* the string representation of the program can be trivially produced using `toStrRepr`:
+    * Just wrap the string in `[r|` and `|]` and we are done.
+    * No character needs escaping/special treatment.
+    * The QuasiQuote multi-line string doesn't even need '\n': linebreaks translate to literal linebreaks.
+* The string representation itself ends the program, i.e. the definition of `s` can be moved to the end.
+
 It becomes obvious that a quine requires *some* way to deal with strings and their specific syntax.
 I.e. it seems as if, without the QuasiQuote syntax for multi-line strings, the quine would be impossible.
 But can that be?
