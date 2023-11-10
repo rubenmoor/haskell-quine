@@ -228,6 +228,7 @@ main = putStrLn $ s ++ toStrRepr s
 
 s :: String
 s =|]
+```
 
 But let's go through the code, step by step:
 
